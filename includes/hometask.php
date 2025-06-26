@@ -120,7 +120,7 @@ $remaining_tasks = max(0, $total_videos - $completed_tasks);
 //print_r($remaining_tasks);die;
 ?>
 
-<div class="container py-4">
+<div class="container py-4" id="task">
     <h2 class="text-center mb-4">Task</h2>
     <div class="card">
         <div class="card-body">
@@ -164,7 +164,7 @@ $remaining_tasks = max(0, $total_videos - $completed_tasks);
             <div id="task-list" style="display: none; max-height: 500px; overflow-y: auto;">
                 <button class="btn btn-success" id="back-button" onclick="goBack()" style="display: block;">&larr; Back</button>
                 <br>
-                <div class="row g-3" id="tasks-container"></div>
+                <div class="row g-3" style="width:99%;" id="tasks-container"></div>
             </div>
         </div>
     </div>

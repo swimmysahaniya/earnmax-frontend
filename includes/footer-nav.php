@@ -4,7 +4,7 @@
     <i class="bi bi-house-door"></i>
     <p>Home</p>
   </a>
-  <a href="#task-buttons" class="text-center">
+  <a href="#task" class="text-center">
     <i class="bi bi-clipboard-check"></i> <!-- Task icon -->
     <p>Task</p>
   </a>

@@ -76,12 +76,12 @@ $site_url = "https://theearnmax.com/signup.php?ref=" . $referral_code; // Change
             </button>
              
             <div class="d-flex justify-content-between mb-0">
-              <button class="btn btn-light icon-btn">
-                <i class="bi bi-collection"></i> Tutorial
-              </button>
-              <button class="btn btn-light icon-btn">
+              <a href="task-history.php" class="btn btn-light icon-btn">
+                <i class="bi bi-collection"></i> Task
+              </a>
+              <a href="blogs.php" class="btn btn-light icon-btn">
                 <i class="bi bi-link"></i> Events
-              </button>
+              </a>
               <button class="btn btn-light icon-btn" data-bs-toggle="modal" data-bs-target="#shareModal">
                 <i class="bi bi-share"></i> Invite
               </button>
@@ -112,7 +112,7 @@ $site_url = "https://theearnmax.com/signup.php?ref=" . $referral_code; // Change
             <hr>
             <div class="d-flex justify-content-center small-text">
               <span class="me-2 text-success"><i class="bi bi-check-circle"></i> Membership</span>
-              <a href="#" class="text-decoration-none text-muted me-3">What's This?</a>
+              <a href="membership.php" class="text-decoration-none text-muted me-3">What's This?</a>
               <!-- <span class="text-secondary"><i class="bi bi-person-circle"></i> Attribution Required</span>
             <a href="#" class="text-decoration-none text-muted ms-1">How?</a> -->
             </div>
