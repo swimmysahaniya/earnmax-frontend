@@ -6,8 +6,8 @@ self.addEventListener("install", event => {
         "/index.php",
         "/style.css",
         "/login.css",
-        "/icons/icon-192x192.png",
-        "/icons/icon-512x512.png"
+        "icons/icon-192x192.png",
+        "icons/icon-512x512.png"
       ]);
     })
   );
