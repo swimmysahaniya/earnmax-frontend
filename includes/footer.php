@@ -19,11 +19,25 @@
 
 </script> -->
 
-<script>
+<!-- <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/service-worker.js")
       .then(reg => console.log("Service Worker registered:", reg))
       .catch(err => console.log("SW registration failed:", err));
+  }
+</script> -->
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(function (registration) {
+          console.log('✅ Service Worker registered with scope:', registration.scope);
+        })
+        .catch(function (error) {
+          console.error('❌ Service Worker registration failed:', error);
+        });
+    });
   }
 </script>
 </body>
