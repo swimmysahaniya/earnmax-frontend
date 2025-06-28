@@ -6,10 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
     $mobile = trim($_POST["mobile"]);
     $password = trim($_POST["password"]);
 
-    $login_time = date("Y-m-d H:i:s");
-    $query = "INSERT INTO myapp_useractivity (user_mobile_id, login_time) VALUES ('$mobile', '$login_time')";
-    mysqli_query($conn, $query);
-
     $stmt = $conn->prepare("SELECT id, password, referral_code FROM myapp_users WHERE mobile = ?");
     $stmt->bind_param("s", $mobile);
     $stmt->execute();
@@ -22,6 +18,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             $_SESSION["user_id"] = $user_id;
             $_SESSION["user_mobile"] = $mobile;
             $_SESSION["referral_code"] = $referral_code;
+
+            // ✅ Log user activity only after successful login
+            $login_time = date("Y-m-d H:i:s");
+            $activity_stmt = $conn->prepare("INSERT INTO myapp_useractivity (user_mobile_id, login_time) VALUES (?, ?)");
+            $activity_stmt->bind_param("ss", $mobile, $login_time);
+            $activity_stmt->execute();
+            $activity_stmt->close();
+
             header("Location: index.php");
             exit();
         } else {
