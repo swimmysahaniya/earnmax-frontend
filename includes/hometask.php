@@ -161,11 +161,11 @@ $remaining_tasks = max(0, $total_videos - $completed_tasks);
                 </div>
             </div>
 
-            <!-- <div id="task-list" style="display: none; max-height: 500px; overflow-y: auto;">
-                <button class="btn btn-success" id="back-button" onclick="goBack()" style="display: block;">&larr; Back</button>
-                <br>
+            <div id="task-list" style="display: none;">
+                <!-- <button class="btn btn-success" id="back-button" onclick="goBack()" style="display: block;">&larr; Back</button>
+                <br> -->
                 <div class="row g-3" style="width:99%;" id="tasks-container"></div>
-            </div> -->
+            </div>
         </div>
     </div>
 </div>
