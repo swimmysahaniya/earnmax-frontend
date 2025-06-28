@@ -1,5 +1,5 @@
 <?php
-$sql = "SELECT * FROM myapp_blog ORDER BY created_at DESC limit 3";
+$sql = "SELECT * FROM myapp_blog ORDER BY created_at DESC limit 4";
 $result = $conn->query($sql);
 ?>
 
@@ -14,7 +14,7 @@ $result = $conn->query($sql);
             $image_path = "/media/blogs/" . basename($row['image']);
             $image_url = $django_base_url . $image_path; // Full image URL
         ?>
-          <div class="col-12 col-md-6 col-lg-4">
+          <div class="col-6 col-md-6 col-lg-4">
             <div class="card blog-thumbnail">
                   <img class="blog-image" src="<?php echo $image_url; ?>" alt="<?php echo $row['title']; ?>">
                   <div class="card-body">
