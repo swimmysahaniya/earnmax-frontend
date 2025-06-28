@@ -28,6 +28,7 @@ $refund_query->close();
 <div class="container mt-5">
     <h2 class="text-center">📈 Your Refunds</h2>
     <?php if (!empty($refunds)) { ?>
+        <div class="table-responsive">
         <table class="table">
             <tr>
                 <th>Refund Amount</th>
@@ -52,6 +53,7 @@ $refund_query->close();
                 </tr>
             <?php } ?>
         </table>
+        </div>
     <?php } else { ?>
         <p class="text-center">No refunds available.</p>
     <?php } ?>

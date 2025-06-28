@@ -57,6 +57,7 @@ $user_mobile = $_SESSION["user_mobile"];
     <div class="mt-5">
     <h2 class="text-center">Your Ticket</h2>
     <?php if (!empty($tickets)) { ?>
+        <div class="table-responsive">
         <table class="table">
             <tr>
                 <th>Ticket ID</th>
@@ -83,6 +84,7 @@ $user_mobile = $_SESSION["user_mobile"];
                 </tr>
             <?php } ?>
         </table>
+        </div>
     <?php } else { ?>
         <p class="text-center">No ticket available.</p>
     <?php } ?>

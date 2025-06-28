@@ -415,6 +415,7 @@
     <div class="container py-5">
         <h2 class="text-center">📈 Your Withdrawals</h2>
         <?php if (!empty($withdrawals)) { ?>
+            <div class="table-responsive">
             <table class="table">
                 <tr>
                     <th>Withdrawal Amount</th>
@@ -443,6 +444,7 @@
                     </tr>
                 <?php } ?>
             </table>
+            </div>
         <?php } else { ?>
             <p class="text-center">No withdrawal available.</p>
         <?php } ?>

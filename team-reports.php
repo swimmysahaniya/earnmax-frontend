@@ -67,6 +67,7 @@ $total_referrals = $row['total_referrals'];
     <div class="box"><strong>Total Referrals:</strong> <?php echo $total_referrals; ?></div>
 
     <h3>Referral Chain Overview</h3>
+    <div class="table-responsive">
     <table class="table">
         <tr>
             <th>Level</th>
@@ -101,6 +102,7 @@ $total_referrals = $row['total_referrals'];
         </tr>
         <?php } ?>
     </table>
+    </div>
 </div>
 
 <?php include("includes/footer-nav.php"); ?>

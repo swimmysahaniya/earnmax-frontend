@@ -240,6 +240,7 @@ if ($can_upgrade) {
     <div class="container mt-5">
         <h2 class="text-center">📈 Your Monthly Income</h2>
         <?php if (!empty($income_list)) { ?>
+            <div class="table-responsive">
             <table class="table">
                 <tr>
                     <th>Total Referred Investment</th>
@@ -266,6 +267,7 @@ if ($can_upgrade) {
                     </tr>
                 <?php } ?>
             </table>
+            </div>
         <?php } else { ?>
             <p class="text-center">No monthly income yet. Keep referring!</p>
         <?php } ?>

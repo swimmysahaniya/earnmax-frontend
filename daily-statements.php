@@ -50,7 +50,7 @@ $daily_statement = getDailyStatement($user_mobile, $conn);
 
 <?php
 echo "<div class='container py-5'><h2 class='text-center'>Daily Statement for " . date('Y-m-d') . "</h2>";
-echo "<table class='table'>
+echo "<div class='table-responsive'><table class='table'>
 <tr>
     <th>Investment</th>
     <th>Task Earnings</th>
@@ -69,7 +69,7 @@ echo "<table class='table'>
     <td>" . number_format($daily_statement['total_withdrawals'], 2) . "</td>
     <td><strong>" . number_format($daily_statement['total_balance'], 2) . "</strong></td>
 </tr>
-</table>
+</table></div>
 </div>";
 ?>
 
