@@ -591,9 +591,3 @@ footer .social-links a:hover {
     background:linear-gradient(to bottom, #6715b4, rgb(255 115 0 / 34%));;
   }
 }
-
-@media screen and (max-width: 1900px) and (min-width: 577px) {
-    /*body {
-        display: none;
-    }*/
-}
