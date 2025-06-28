@@ -593,7 +593,7 @@ footer .social-links a:hover {
 }
 
 @media screen and (max-width: 1900px) and (min-width: 577px) {
-    body {
-        /*display: none;*/
-    }
+    /*body {
+        display: none;
+    }*/
 }

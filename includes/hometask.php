@@ -161,11 +161,11 @@ $remaining_tasks = max(0, $total_videos - $completed_tasks);
                 </div>
             </div>
 
-            <div id="task-list" style="display: none; max-height: 500px; overflow-y: auto;">
+            <!-- <div id="task-list" style="display: none; max-height: 500px; overflow-y: auto;">
                 <button class="btn btn-success" id="back-button" onclick="goBack()" style="display: block;">&larr; Back</button>
                 <br>
                 <div class="row g-3" style="width:99%;" id="tasks-container"></div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -222,14 +222,15 @@ function showTasks() {
 
     videoUrls.forEach((videoUrl, i) => {
         const videoDiv = document.createElement('div');
-        videoDiv.className = 'col-12 col-md-6 col-lg-4';
+        videoDiv.className = 'col-6 col-md-6 col-lg-4';
 
         let isWatched = watchedVideos.has(videoUrl);
         let isDisabled = i !== watchingVideoIndex || isWatched; // Only the first unwatched video should be enabled
 
         videoDiv.innerHTML = `
             <div class="video-wrapper">
-                <video id="video${i}" width="100%" style="height: 228px;" ${isDisabled ? 'controls="false"' : 'controls'}>
+                <video id="video${i}" width="100%" style="height: 228px;" ${isDisabled ? 'controls="false"' : 'controls' poster="/images/slide-2.webp" }>
+                    <source src="${videoUrl}" type="video/mp4">
                     <source src="${videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
