@@ -247,7 +247,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signup"])) {
         <input type="text" name="mobile" placeholder="Enter your mobile number" pattern="[6-9]{1}[0-9]{9}" required />
         <input type="password" name="password" placeholder="Password" required />
         <input type="password" name="confirm_password" placeholder="Confirm password" required />
-        <input type="text" name="invitation_code" placeholder="Please enter the invitation code" value="<?php echo htmlspecialchars($referral_from_url); ?>" required />
+        <!-- <input type="text" name="invitation_code" placeholder="Please enter the invitation code" value="<?php echo htmlspecialchars($referral_from_url); ?>" required /> -->
+        <input type="text" name="invitation_code" placeholder="Please enter the invitation code" value="A7E71299" required />
         <button type="submit" name="signup" class="clkbtn">Signup</button>
       </form>
     </div>
