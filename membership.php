@@ -94,9 +94,9 @@ while ($row = $result->fetch_assoc()) {
                             <input type="hidden" name="amount" value="<?= $plan['amount']; ?>">
                             <input type="hidden" id="upi_id" name="upi_id" value="">
                             <hr/>
-                            <p style="color:red; text-align:center;">Note: Kindly enter your 12 digit transaction code using the button below for admin verification.</p>
+                            <p style="color:red; text-align:center;">Note: Kindly enter your 12 digit transaction code and upload payment screenshot using the button below for admin verification.</p>
                             <input type="text" placeholder="Enter 12 Digit Transaction Code" name="transaction_code" required class="form-control"><br/>
-                            <!-- <input type="file" name="payment_screenshot" required class="form-control"><br/> -->
+                            <input type="file" name="payment_screenshot" required class="form-control"><br/>
                             <button type="submit" class="btn btn-orange flash-text btn-sm mt-2">Submit</button>
                         </form>
                     </div>
@@ -135,7 +135,7 @@ while ($row = $result->fetch_assoc()) {
             upiList.forEach((upi, index) => {
                 let btn = document.createElement("button");
                 btn.className = "btn btn-orange flash-text btn-lg w-100 mb-3";
-                btn.textContent = `UPI ${index + 1}`;
+                btn.textContent = `UPI ${index + 1}: ${upi}`;
                 btn.onclick = function() {
                     let paymentURL = `upi://pay?pa=${upi}&pn=The Earn Max&am=${amount}&cu=INR`;
                     document.getElementById("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(paymentURL)}&size=200x200`;
