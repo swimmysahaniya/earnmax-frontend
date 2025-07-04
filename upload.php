@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $transaction_code = $_POST["transaction_code"];
 
     // Handle screenshot upload
-    $upload_dir = "/home/root/the_earn_max/media/payment_screenshot/";
+    $upload_dir = "/Users/susheel/PycharmProjects/earnmax-backend/media/payment_screenshot/";
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -27,6 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_FILES["payment_screenshot"]) && $_FILES["payment_screenshot"]["error"] == 0) {
         $filename = basename($_FILES["payment_screenshot"]["name"]);
         $target_file = $upload_dir . $filename;
+        $relative_path = "payment_screenshot/" . $filename;  // Store only relative path
+
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
 
@@ -57,11 +59,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($num_rows > 0) {
         // Update existing record
         $stmt = $conn->prepare("UPDATE myapp_payment SET amount = ?, transaction_code = ?, payment_screenshot = ?, status = '0', created_at = NOW() WHERE user_mobile_id = ?");
-        $stmt->bind_param("isss", $amount, $transaction_code, $file_path, $user_mobile);
+        $stmt->bind_param("isss", $amount, $transaction_code, $relative_path, $user_mobile);
     } else {
         // Insert new record
         $stmt = $conn->prepare("INSERT INTO myapp_payment (user_mobile, user_mobile_id, amount, transaction_code, payment_screenshot, status, created_at) VALUES (?, ?, ?, ?, ?, '0', NOW())");
-        $stmt->bind_param("ssiss", $user_mobile, $user_mobile, $amount, $transaction_code, $file_path);
+        $stmt->bind_param("ssiss", $user_mobile, $user_mobile, $amount, $transaction_code, $relative_path);
     }
 
     if ($stmt->execute()) {

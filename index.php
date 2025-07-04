@@ -128,9 +128,9 @@ $user_status = $result['status'];
     ?>
 
     <!-- Button to Open the Modal -->
-    <button type="button" class="btn btn-primary fixed-left-button" data-bs-toggle="modal" data-bs-target="#supportTicketModal">
+    <!-- <button type="button" class="btn btn-primary fixed-left-button" data-bs-toggle="modal" data-bs-target="#supportTicketModal">
         Support Ticket
-    </button>
+    </button> -->
 
     <!-- Support Ticket Modal -->
     <div class="modal fade" id="supportTicketModal" tabindex="-1" aria-labelledby="supportTicketModalLabel" aria-hidden="true">

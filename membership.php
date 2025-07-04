@@ -140,6 +140,14 @@ while ($row = $result->fetch_assoc()) {
                     let paymentURL = `upi://pay?pa=${upi}&pn=The Earn Max&am=${amount}&cu=INR`;
                     document.getElementById("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(paymentURL)}&size=200x200`;
                     document.getElementById("qrImage").style.display = "block";
+
+                    // Copy UPI ID to clipboard
+                    navigator.clipboard.writeText(upi).then(() => {
+                        alert("UPI ID copied to clipboard: " + upi);
+                    }).catch(err => {
+                        console.error("Copy failed", err);
+                        alert("Failed to copy UPI ID. Please copy manually.");
+                    });
                 };
                 modalBody.appendChild(btn);
             });
