@@ -263,12 +263,30 @@ function showTasks() {
                 this.pause();
             } else {
                 disableOtherVideos(i);
+
+                // Request fullscreen when video starts playing
+                if (this.requestFullscreen) {
+                    this.requestFullscreen();
+                } else if (this.webkitRequestFullscreen) { // Safari
+                    this.webkitRequestFullscreen();
+                } else if (this.msRequestFullscreen) { // IE11
+                    this.msRequestFullscreen();
+                }
             }
         });
 
         // Mark video as watched
         videoElement.addEventListener("ended", function () {
             markVideoCompleted(i, videoElement, statusElement, videoUrl);
+
+            // Exit fullscreen after completion
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (document.webkitFullscreenElement) {
+                document.webkitExitFullscreen();
+            } else if (document.msFullscreenElement) {
+                document.msExitFullscreen();
+            }
         });
     });
 
