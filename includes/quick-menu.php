@@ -3,7 +3,7 @@
     <!-- Invite to Join -->
     <div class="col-6 col-md-3">
       <div class="icon-card">
-        <a href="https://drive.google.com/file/d/15FQAByBsXgFBI6ZVxm1asIK60u3rugec/view?usp=drive_link" class="text-center">
+        <a href="https://app.theearnmax.com/TheEarnMax.apk" class="text-center">
           <i class="fa fa-download" aria-hidden="true" style='font-size:20px'></i><br>
           <span>Download Apk</span>
         </a>
