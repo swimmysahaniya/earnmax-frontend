@@ -33,7 +33,7 @@
       <div class="icon-card">
         <a href="wealth-mgnt.php" class="text-center">
           <i class='fas fa-money-bill-alt' aria-hidden="true" style='font-size:20px'></i><br>
-          <span>Wealth Management</span>
+          <span>Wealth Mgnt</span>
         </a>
       </div>
     </div>

@@ -590,4 +590,7 @@ footer .social-links a:hover {
   .header-banner{
     background:linear-gradient(to bottom, #6715b4, rgb(255 115 0 / 34%));;
   }
+  .video-task {
+     min-height: 100px !important;
+  }
 }
