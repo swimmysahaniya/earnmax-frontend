@@ -113,6 +113,7 @@ while ($row = $result->fetch_assoc()) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Select UPI for Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
                 <p>Choose a UPI ID for payment:</p>
@@ -132,23 +133,27 @@ while ($row = $result->fetch_assoc()) {
             modalBody.innerHTML = ""; 
 
             upiList.forEach((upi, index) => {
-                let btn = document.createElement("button");
-                btn.className = "btn btn-orange flash-text btn-lg w-100 mb-3";
-                btn.textContent = `Copy UPI ${index + 1}: ${upi}`;
-                btn.onclick = function() {
+                let copyBtn = document.createElement("button");
+                copyBtn.className = "btn btn-orange flash-text btn-lg w-100 mb-3";
+                copyBtn.textContent = `Copy UPI ${index + 1} and generate QR`;  // Only label, not UPI shown
+
+                copyBtn.onclick = function() {
                     let paymentURL = `upi://pay?pa=${upi}&pn=The Earn Max&am=${amount}&cu=INR`;
+
+                    // Show QR Code
                     document.getElementById("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(paymentURL)}&size=200x200`;
                     document.getElementById("qrImage").style.display = "block";
 
                     // Copy UPI ID to clipboard
                     navigator.clipboard.writeText(upi).then(() => {
-                        alert("UPI ID copied to clipboard: " + upi);
+                        alert("UPI ID copied to clipboard.");
                     }).catch(err => {
                         console.error("Copy failed", err);
                         alert("Failed to copy UPI ID. Please copy manually.");
                     });
                 };
-                modalBody.appendChild(btn);
+
+                modalBody.appendChild(copyBtn);
             });
 
             $("#upiModal").modal("show");
