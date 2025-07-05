@@ -20,7 +20,7 @@ $result = $conn->query($sql);
                   <div class="card-body">
                     <h5 class="card-title"><?php echo $row['title']; ?></h5>
                     <p><strong>Author:</strong> <?php echo $row['author']; ?> | <strong>Date:</strong> <?php echo date("F j, Y", strtotime($row['created_at'])); ?></p>
-                    <p class="card-text"><?php echo substr(strip_tags($row['content']), 0, 150); ?>...</p>
+                    <!-- <p class="card-text"><?php echo substr(strip_tags($row['content']), 0, 150); ?>...</p> -->
                     <a href="blog-detail.php?slug=<?php echo $row['slug']; ?>" class="read-more">Read More &raquo;</a>
                   </div>
                 </div>
