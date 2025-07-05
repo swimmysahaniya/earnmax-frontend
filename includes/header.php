@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container">
     <!-- brand / logo -->
-    <a class="navbar-brand" href="home.php">
+    <a class="navbar-brand" href="./">
       <img src="images/logo.png"
            alt="Logo"
            width="80"

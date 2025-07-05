@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if ($stmt->execute()) {
-        echo "<script>alert('Payment details and screenshot submitted successfully!'); window.location.href='home.php';</script>";
+        echo "<script>alert('Payment details and screenshot submitted successfully!'); window.location.href='./';</script>";
     } else {
         echo "<script>alert('Database error: " . addslashes($stmt->error) . "'); window.history.back();</script>";
     }

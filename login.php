@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             $activity_stmt->execute();
             $activity_stmt->close();
 
-            header("Location: home.php");
+            header("Location: index.php");
             exit();
         } else {
             $errors[] = "Invalid password!";
@@ -183,7 +183,7 @@ header img {
 </head>
 <body>
     <header>
-        <a class="navbar-brand" href="home.php">
+        <a class="navbar-brand" href="./">
             <img src="images/logo.png" alt="Logo">
         </a>
     </header>
