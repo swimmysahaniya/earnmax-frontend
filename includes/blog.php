@@ -1,5 +1,5 @@
 <?php
-$sql = "SELECT * FROM myapp_blog ORDER BY created_at DESC limit 4";
+$sql = "SELECT * FROM myapp_blog ORDER BY created_at DESC limit 6";
 $result = $conn->query($sql);
 ?>
 

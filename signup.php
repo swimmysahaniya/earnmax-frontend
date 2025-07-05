@@ -210,7 +210,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signup"])) {
 
 <body>
   <header>
-    <a class="navbar-brand" href="./">
+    <a class="navbar-brand" href="home.php">
       <img src="images/logo.png" alt="Logo" />
     </a>
   </header>

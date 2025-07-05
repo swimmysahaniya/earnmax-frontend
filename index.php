@@ -1,233 +1,89 @@
-<?php
-session_start();
-if (!isset($_SESSION["user_mobile"])) {
-    header("Location: login.php");
-    exit();
-}
-
-$mobile = $_SESSION["user_mobile"];
-$referral_code = $_SESSION["referral_code"]; // Fetch referral code from session
-?>
-
-<?php include("includes/head.php"); ?>
-<?php include("includes/header.php"); ?>
-<?php include("includes/header-notification.php"); ?>
-
-<?php
-// Check if the user is activated
-$query = "SELECT status FROM myapp_users WHERE mobile = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $user_mobile);
-$stmt->execute();
-$result = $stmt->get_result()->fetch_assoc();
-$user_status = $result['status'];
-?>
-
-
-<?php if ($user_status == '1'): ?>
-    <?php
-    // Task Timings Logic
-    date_default_timezone_set('Asia/Kolkata'); // Set the correct timezone
-    $dayOfWeek = date('N'); // 1 (Monday) to 7 (Sunday)
-    $currentHour = date('H'); // Current hour in 24-hour format
-
-    $taskAllowed = ($dayOfWeek >= 1 && $dayOfWeek <= 7 && $currentHour >= 0 && $currentHour < 24);
-
-    //////////////////////////refund logic start /////////////////////////////
-
-    $conn->begin_transaction();
-
-    // Step 1: Get user's total refunded amount
-    $query = $conn->prepare("SELECT SUM(refunded_amount) FROM myapp_refund WHERE user_mobile_id = ?");
-    $query->bind_param("s", $user_mobile);
-    $query->execute();
-    $query->bind_result($total_refunded);
-    $query->fetch();
-    $query->close();
-
-    if (!$total_refunded) {
-        $total_refunded = 0;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Earn Max</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f4c81" />
+  <link rel="apple-touch-icon" href="images/icons/icon-192x192.png" />
+  <style>
+    #installBtn {
+      background-color: #0d6efd;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
     }
-
-    // Step 2: Get user's total investment
-    $query = $conn->prepare("SELECT amount FROM myapp_payment WHERE user_mobile_id = ? AND status = '1' LIMIT 1");
-    $query->bind_param("s", $user_mobile);
-    $query->execute();
-    $query->bind_result($investment_amount);
-    $query->fetch();
-    $query->close();
-
-    if (!$investment_amount) {
-        $investment_amount = 0;
+    .btn a button.active, .btn a button:hover {
+        background-color: #ff7300;
+        color: #fff;
     }
+    .btn a button {
+        flex: 1;
+        margin: 0 5px;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        color: #fff;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+    .disp {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
+</head>
+<body style="text-align: center;">
+  <h1>Welcome to The Earn Max</h1>
+  <p>You can install this web app!</p>
+  <div class="disp">
+    <button id="installBtn" style="display: none;">
+      Download App
+    </button>
+    <div class="btn">
+      <a href="login.php">
+        <button class="login active">Login</button>
+      </a>
+    </div>
+  </div>
+<script>
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
 
-    // Step 3: Get user's referral code
-    $query = $conn->prepare("SELECT referral_code FROM myapp_users WHERE mobile = ?");
-    $query->bind_param("s", $user_mobile);
-    $query->execute();
-    $query->bind_result($referral_code);
-    $query->fetch();
-    $query->close();
+  // Listen for install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // Prevent automatic prompt
+    deferredPrompt = e; // Save the event
+    installBtn.style.display = 'inline-block'; // Show the button
+  });
 
-    // Step 4: Count number of referred users
-    $query = $conn->prepare("SELECT COUNT(*) FROM myapp_users WHERE invited_by = ?");
-    $query->bind_param("s", $referral_code);
-    $query->execute();
-    $query->bind_result($referral_count);
-    $query->fetch();
-    $query->close();
-
-    // Only proceed if referred users >= 3
-    if ($referral_count >= 3) {
-
-        // Step 5: Get total referred investment
-        $query = $conn->prepare("
-            SELECT SUM(p.amount)
-            FROM myapp_payment p
-            JOIN myapp_users u ON p.user_mobile_id = u.mobile
-            WHERE u.invited_by = ? AND p.status = '1'
-        ");
-        $query->bind_param("s", $referral_code);
-        $query->execute();
-        $query->bind_result($total_referred_investment);
-        $query->fetch();
-        $query->close();
-
-        if (!$total_referred_investment) {
-            $total_referred_investment = 0;
-        }
-
-        // Step 6: Calculate refundable amount
-        $refund_amount = min($investment_amount, $total_referred_investment);
-
-        // Step 7: Insert refund if applicable
-        if ($refund_amount > 0 && $total_refunded < $investment_amount) {
-            $query = $conn->prepare("INSERT INTO myapp_refund (user_mobile_id, refunded_amount, status, created_at) VALUES (?, ?, '0', NOW())");
-            $query->bind_param("sd", $user_mobile, $refund_amount);
-            $query->execute();
-            $query->close();
-
-            // Update refund_status to '1' in myapp_users
-            $query = $conn->prepare("UPDATE myapp_users SET refund_status = '1' WHERE mobile = ?");
-            $query->bind_param("s", $user_mobile);
-            $query->execute();
-            $query->close();
-
-            $conn->commit(); // Commit transaction
+  // Handle button click
+  installBtn.addEventListener('click', () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt(); // Show prompt
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the A2HS prompt');
         } else {
-            $conn->rollback(); // Rollback if no refund is needed
+          console.log('User dismissed the A2HS prompt');
         }
-
-    } else {
-        // If less than 3 referrals, rollback
-        $conn->rollback();
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      });
     }
-
-    //////////////////////////refund logic end /////////////////////////////
-    ////////////////////support ticket start //////////////////////////////////
-    ?>
-
-    <!-- Button to Open the Modal -->
-    <!-- <button type="button" class="btn btn-primary fixed-left-button" data-bs-toggle="modal" data-bs-target="#supportTicketModal">
-        Support Ticket
-    </button> -->
-
-    <!-- Support Ticket Modal -->
-    <div class="modal fade" id="supportTicketModal" tabindex="-1" aria-labelledby="supportTicketModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="supportTicketModalLabel">Submit Support Ticket</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="supportTicketForm">
-                        <div class="mb-3">
-                            <label for="user_mobile" class="form-label">Mobile Number</label>
-                            <input type="text" class="form-control" id="user_mobile" name="user_mobile" value="<?php echo $user_mobile; ?>" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject" class="form-label">Subject</label>
-                            <input type="text" class="form-control" id="subject" name="subject" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="message" class="form-label">Message</label>
-                            <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-success w-100">
-                                Submit Ticket
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- jQuery for AJAX Submission -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $("#supportTicketForm").submit(function(event) {
-                event.preventDefault(); // Prevent default form submission
-
-                $.ajax({
-                    url: "submit_ticket.php",
-                    type: "POST",
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        alert(response); // Show response message
-                        $("#supportTicketForm")[0].reset(); // Reset form
-                        $("#supportTicketModal").modal("hide"); // Hide modal
-                    }
-                });
-            });
-        });
-    </script>
-
-
-     <!-- /////////////////support ticket end //////////////////-->
-
-    <!-- Show main content if user is activated -->
-    <?php include("includes/hero.php"); ?>
-    <?php include("includes/quick-menu.php"); ?>
-    <?php include("includes/gallery.php"); ?>
-    <?php include("includes/blog.php"); ?>
-    <?php include("includes/hometask.php"); ?>
-    <?php include("includes/footer-nav.php"); ?>
-    <?php include("includes/footer.php"); ?>
-
-<?php elseif ($user_status == '0'): ?>
-    <?php include("includes/hero.php"); ?>
-    <?php include("includes/quick-menu.php"); ?>
-    <?php include("includes/gallery.php"); ?>
-    <?php include("includes/blog.php"); ?>
-    <?php //include("includes/membership.php"); ?>
-    <!-- Show message if user is not activated -->
-    <div class="alert alert-warning mt-5">
-        <h4>Your account is not activated yet!</h4>
-        <p>Please wait for admin approval.</p>
-    </div>
-    <?php include("includes/footer-nav.php"); ?>
-    <?php include("includes/footer.php"); ?>
-<?php elseif ($user_status == '2'): ?>
-    <?php include("includes/hero.php"); ?>
-    <!-- Banned Message -->
-    <div class="alert alert-danger mt-5">
-        <h4>Your account has been banned!</h4>
-        <p>You have violated our policies. If you think this is a mistake, contact support.</p>
-    </div>
-<?php elseif ($user_status == '3'): ?>
-    <?php include("includes/hero.php"); ?>
-    <?php include("includes/quick-menu.php"); ?>
-    <?php include("includes/gallery.php"); ?>
-    <?php include("includes/blog.php"); ?>
-    <div class="alert alert-danger mt-5">
-        <h4>Your account has been locked!</h4>
-        <p>You can not perform tasks or make withdrawals. If you think this is a mistake, contact support.</p>
-    </div>
-    <?php include("includes/footer-nav.php"); ?>
-    <?php include("includes/footer.php"); ?>
-<?php endif; ?>
-
+  });
+</script>
+</body>
+</html>

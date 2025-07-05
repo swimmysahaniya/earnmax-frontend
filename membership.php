@@ -1,16 +1,15 @@
 <?php
 session_start();
 
-if (!isset($_SESSION["user_mobile"])) {
-    header("Location: login.php");
-    exit();
-}
-
 include("includes/config.php");
 
 // Get user mobile number from session
 $user_mobile = $_SESSION['user_mobile'] ?? '';
 
+if (!isset($_SESSION["user_mobile"])) {
+    header("Location: login.php");
+    exit();
+}
 
 // Fetch Membership Plans from Database
 $query = "SELECT task_number, title, amount, earning, no_of_videos FROM myapp_task ORDER BY task_number ASC, title ASC";

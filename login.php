@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             $activity_stmt->execute();
             $activity_stmt->close();
 
-            header("Location: index.php");
+            header("Location: home.php");
             exit();
         } else {
             $errors[] = "Invalid password!";
@@ -183,7 +183,7 @@ header img {
 </head>
 <body>
     <header>
-        <a class="navbar-brand" href="./">
+        <a class="navbar-brand" href="home.php">
             <img src="images/logo.png" alt="Logo">
         </a>
     </header>
@@ -219,5 +219,17 @@ header img {
             </form>
         </div>
     </div>
+
+<script>
+// Clear all service worker caches
+caches.keys().then(function(names) {
+  for (let name of names) caches.delete(name);
+});
+
+// Optionally reload the page
+//location.reload();
+</script>
 </body>
 </html>
+
+

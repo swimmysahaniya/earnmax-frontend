@@ -1,6 +1,6 @@
 <!-- Home Menu -->
 <div class="footer-nav">
-  <a href="./" class="text-center">
+  <a href="home.php" class="text-center">
     <i class="bi bi-house-door"></i>
     <p>Home</p>
   </a>
