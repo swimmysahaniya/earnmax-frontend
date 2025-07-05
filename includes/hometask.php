@@ -229,7 +229,7 @@ function showTasks() {
 
         videoDiv.innerHTML = `
             <div class="video-wrapper">
-                <video id="video${i}" width="100%" style="object-fit: cover;" ${isDisabled ? 'controls="false"' : 'controls' } poster="/images/slide-2.webp">
+                <video id="video${i}" width="100%" style="object-fit: fill; min-height: 228px;" ${isDisabled ? 'controls="false"' : 'controls' } poster="/images/slide-2.webp">
                     <source src="${videoUrl}" type="video/mp4">
                     <source src="${videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
