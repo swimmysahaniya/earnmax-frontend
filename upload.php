@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $transaction_code = $_POST["transaction_code"];
 
     // Handle screenshot upload
-    $upload_dir = "/media/payment_screenshot/";
+    $upload_dir = "/home/root/the_earn_max/media/payment_screenshot/";
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
