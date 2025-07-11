@@ -22,13 +22,27 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Fetch user's membership amount
-$query = "SELECT amount FROM myapp_payment WHERE user_mobile_id = ? AND status = '1'";
+$query = "SELECT amount, created_at FROM myapp_payment WHERE user_mobile_id = ? AND status = '1' ORDER BY created_at DESC LIMIT 1";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $user_mobile);
 $stmt->execute();
 $result = $stmt->get_result();
-$user_membership = $result->fetch_assoc()['amount'] ?? 0;
+$row = $result->fetch_assoc();
+$user_membership = $row['amount'] ?? 0;
+$membership_date = $row['created_at'] ?? null;
 $user_membership = intval($user_membership);
+
+
+//calculate the days difference for task 30 days validity
+$task_expired = false;
+if ($membership_date) {
+    $membership_date = new DateTime($membership_date);
+    $now = new DateTime();
+    $diff_days = $membership_date->diff($now)->days;
+    if ($diff_days > 30) {
+        $task_expired = true;
+    }
+}
 
 // Fetch completed tasks count and total earnings
 $query = "SELECT
@@ -92,7 +106,6 @@ while ($row = $result->fetch_assoc()) {
 $membership_levels = [];
 foreach ($tasks as $task) {
     $membership_levels[$task['amount']] = $task;
-}
 
 // Get user's task and videos based on membership level
 $user_task = $membership_levels[$user_membership]['task_number'] ?? 0;
@@ -100,13 +113,14 @@ $total_videos = $membership_levels[$user_membership]['no_of_videos'] ?? 0;
 $earning_per_video = $membership_levels[$user_membership]['earning'] ?? 0;
 $task_videos = $membership_levels[$user_membership]['videos'] ?? [];
 $task_id = $membership_levels[$user_membership]['task_id'] ?? 0;
+}
 
 // Calculate remaining tasks
 $remaining_tasks = max(0, $total_videos - $completed_tasks);
 //print_r($remaining_tasks);die;
 ?>
 
-<div class="container py-4">
+<div class="container py-4" id="task">
     <h2 class="text-center mb-4">Task</h2>
     <div class="card">
         <div class="card-body">
@@ -128,26 +142,29 @@ $remaining_tasks = max(0, $total_videos - $completed_tasks);
 
             <div class="row mb-4" id="task-buttons">
                 <div class="col text-center">
-                    <?php if ($completed_tasks == 0): ?>
-                        <p class="text-primary">Welcome! Start your first task by watching the videos below.</p>
-                        <button class="btn flash-button mx-2 mb-2" id="watch-videos-btn">
-                            <i class="fa fa-video" aria-hidden="true"></i> Start Watching Videos
-                        </button>
-                    <?php elseif ($remaining_tasks == 0): ?>
-                        <p class="text-danger">You have completed your tasks for today.</p>
+                    <?php if ($task_expired): ?>
+                        <p class="text-danger">You cannot complete your task now. Your 30 days validity has expired.</p>
                     <?php else: ?>
-                        <button class="btn flash-button mx-2 mb-2" id="watch-videos-btn">
-                            <i class="fa fa-video" aria-hidden="true"></i> Watch Videos to Complete Tasks
-                        </button>
+                        <?php if ($completed_tasks == 0): ?>
+                            <p class="text-primary">Welcome! Start your first task by watching the videos below.</p>
+                            <button class="btn flash-button mx-2 mb-2" id="watch-videos-btn">
+                                <i class="fa fa-video" aria-hidden="true"></i> Start Watching Videos
+                            </button>
+                        <?php elseif ($remaining_tasks == 0): ?>
+                            <p class="text-danger">You have completed your tasks for today.</p>
+                        <?php else: ?>
+                            <button class="btn flash-button mx-2 mb-2" id="watch-videos-btn">
+                                <i class="fa fa-video" aria-hidden="true"></i> Watch Videos to Complete Tasks
+                            </button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
 
-
-            <div id="task-list" style="display: none; max-height: 500px; overflow-y: auto;">
-                <button class="btn btn-success" id="back-button" onclick="goBack()" style="display: block;">&larr; Back</button>
-                <br>
-                <div class="row g-3" id="tasks-container"></div>
+            <div id="task-list" style="display: none;">
+                <!-- <button class="btn btn-success" id="back-button" onclick="goBack()" style="display: block;">&larr; Back</button>
+                <br> -->
+                <div class="row g-3" style="width:99%;" id="tasks-container"></div>
             </div>
         </div>
     </div>
@@ -160,11 +177,12 @@ let allowedVideos = <?php echo $total_videos; ?>;
 let totalEarnings = <?php echo $total_earnings; ?>;
 let earningPerVideo = <?php echo $earning_per_video; ?>;
 let remainingTasks = <?php echo $remaining_tasks; ?>;
+let taskExpired = <?php echo $task_expired ? 'true' : 'false'; ?>;
 
-const videoBasePath = "http://127.0.0.1:8000/media/videos/";
+const videoBasePath = "https://theearnmax.com/media/videos/";
 let taskId = <?php echo json_encode($task_id); ?>;
 let taskVideos = <?php echo json_encode($task_videos); ?>;
-let videoUrls = taskVideos.map(video => video.video.startsWith("http") ? video.video : videoBasePath + video.video.split('/').pop());
+let videoUrls = taskVideos.map(video => video.video.startsWith("https") ? video.video : videoBasePath + video.video.split('/').pop());
 
 let watchedVideos = new Set(watchedVideosFromDB); // Convert to Set
 let watchingVideoIndex = videoUrls.findIndex(url => !watchedVideos.has(url)); // First unwatched video
@@ -193,19 +211,26 @@ function saveWatchedVideo(videoUrl) {
 }
 
 function showTasks() {
+
+    if (taskExpired) {
+        //alert("You cannot complete your task now. Your 30 days validity has expired.");
+        return;
+    }
+
     const container = document.getElementById('tasks-container');
     container.innerHTML = '';
 
     videoUrls.forEach((videoUrl, i) => {
         const videoDiv = document.createElement('div');
-        videoDiv.className = 'col-12 col-md-6 col-lg-4';
+        videoDiv.className = 'col-6 col-md-6 col-lg-4';
 
         let isWatched = watchedVideos.has(videoUrl);
         let isDisabled = i !== watchingVideoIndex || isWatched; // Only the first unwatched video should be enabled
 
         videoDiv.innerHTML = `
             <div class="video-wrapper">
-                <video id="video${i}" width="100%" style="height: 228px;" ${isDisabled ? 'controls="false"' : 'controls'}>
+                <video id="video${i}" width="100%" class="video-task" style="object-fit: fill; max-height: 228px;" ${isDisabled ? 'controls="false"' : 'controls' } poster="/images/slide-2.webp">
+                    <source src="${videoUrl}" type="video/mp4">
                     <source src="${videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -238,12 +263,30 @@ function showTasks() {
                 this.pause();
             } else {
                 disableOtherVideos(i);
+
+                // Request fullscreen when video starts playing
+                if (this.requestFullscreen) {
+                    this.requestFullscreen();
+                } else if (this.webkitRequestFullscreen) { // Safari
+                    this.webkitRequestFullscreen();
+                } else if (this.msRequestFullscreen) { // IE11
+                    this.msRequestFullscreen();
+                }
             }
         });
 
         // Mark video as watched
         videoElement.addEventListener("ended", function () {
             markVideoCompleted(i, videoElement, statusElement, videoUrl);
+
+            // Exit fullscreen after completion
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (document.webkitFullscreenElement) {
+                document.webkitExitFullscreen();
+            } else if (document.msFullscreenElement) {
+                document.msExitFullscreen();
+            }
         });
     });
 
@@ -262,6 +305,18 @@ function disableOtherVideos(activeIndex) {
 }
 
 function markVideoCompleted(index, videoElement, statusElement, videoUrl) {
+    // Check if current time is before 5 PM (17:00)
+    let now = new Date();
+    let currentHour = now.getHours();
+
+    if (currentHour >= 24) {
+        alert("Task time has ended. You cannot complete this task after 5 PM.");
+        videoElement.currentTime = 0; // Optionally rewind the video
+        videoElement.pause();
+        return;
+    }
+
+
     watchedVideos.add(videoUrl);
     videoElement.setAttribute("data-watched", "true");
     markVideoUnplayable(videoElement, statusElement);
@@ -295,7 +350,14 @@ function saveTaskProgress(videoUrl) {
         body: `task_id=${encodeURIComponent(taskId)}&completed_tasks=1&total_earnings=${encodeURIComponent(earningPerVideo)}&video_url=${encodeURIComponent(videoUrl)}`,
     })
     .then(response => response.json())
-    .then(data => console.log("Server Response:", data))
+    //.then(data => console.log("Server Response:", data))
+    .then(data => {
+        if (data.status === "error") {
+            alert(data.message);
+        } else {
+            console.log("Server Response:", data);
+        }
+    })
     .catch(error => console.error("Error:", error));
 }
 
@@ -305,4 +367,5 @@ function goBack() {
 }
 
 document.getElementById("watch-videos-btn").addEventListener("click", showTasks);
+
 </script>

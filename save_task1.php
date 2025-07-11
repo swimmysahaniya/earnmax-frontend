@@ -26,16 +26,15 @@ if ($currentHour >= 24) {
 ///////////video not allowed after 5pm//////////////
 
 $task_id = $_POST['task_id'] ?? 0;
-$video_id = $_POST['video_id'] ?? 0;
 $completed_tasks = $_POST['completed_tasks'] ?? 0;
 $total_earnings = $_POST['total_earnings'] ?? 0;
+$video_url = $_POST['video_url'] ?? '';
 
 $task_id = intval($task_id);
-$video_id = intval($video_id);
 $completed_tasks = intval($completed_tasks);
 $total_earnings = intval($total_earnings);
 
-if ($task_id <= 0 || $completed_tasks <= 0 || $total_earnings < 0 || $video_id <= 0) {
+if ($task_id <= 0 || $completed_tasks <= 0 || $total_earnings < 0 || empty($video_url)) {
     echo json_encode(["status" => "error", "message" => "Invalid input data"]);
     exit;
 }
@@ -48,7 +47,7 @@ $query1 = "INSERT INTO myapp_watchedvideo (user_mobile_id, task_id, video_url, w
           ON DUPLICATE KEY UPDATE watched_at = NOW()";
 
 $stmt1 = $conn->prepare($query1);
-$stmt1->bind_param("sss", $user_mobile, $task_id, $video_id);
+$stmt1->bind_param("sss", $user_mobile, $task_id, $video_url);
 $stmt1->execute();
 
 // Insert into completed tasks

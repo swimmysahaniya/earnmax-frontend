@@ -20,6 +20,7 @@ $watched_videos = [];
 while ($row = $result->fetch_assoc()) {
     $watched_videos[] = $row['video_url'];
 }
+//print_r($watched_videos);die;
 
 // Fetch user's membership amount
 $query = "SELECT amount, created_at FROM myapp_payment WHERE user_mobile_id = ? AND status = '1' ORDER BY created_at DESC LIMIT 1";
@@ -184,8 +185,8 @@ let taskId = <?php echo json_encode($task_id); ?>;
 let taskVideos = <?php echo json_encode($task_videos); ?>;
 let videoUrls = taskVideos.map(video => video.video.startsWith("https") ? video.video : videoBasePath + video.video.split('/').pop());
 
-let watchedVideos = new Set(watchedVideosFromDB); // Convert to Set
-let watchingVideoIndex = videoUrls.findIndex(url => !watchedVideos.has(url)); // First unwatched video
+let watchedVideos = new Set(watchedVideosFromDB.map(String));  // video IDs
+let watchingVideoIndex = taskVideos.findIndex(video => !watchedVideos.has(String(video.video_id)));
 
 if (watchingVideoIndex === -1) watchingVideoIndex = 0; // If all are watched, default to first
 
@@ -199,11 +200,11 @@ document.addEventListener("DOMContentLoaded", function () {
     showTasks();
 });
 
-function saveWatchedVideo(videoUrl) {
+function saveWatchedVideo(videoId) {
     fetch("save_watched_video.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `task_id=${encodeURIComponent(taskId)}&video_url=${encodeURIComponent(videoUrl)}`,
+        body: `task_id=${encodeURIComponent(taskId)}&video_id=${encodeURIComponent(videoId)}`,
     })
     .then(response => response.json())
     .then(data => console.log("Server Response:", data))
@@ -211,26 +212,26 @@ function saveWatchedVideo(videoUrl) {
 }
 
 function showTasks() {
-
     if (taskExpired) {
-        //alert("You cannot complete your task now. Your 30 days validity has expired.");
         return;
     }
 
     const container = document.getElementById('tasks-container');
     container.innerHTML = '';
 
-    videoUrls.forEach((videoUrl, i) => {
+    taskVideos.forEach((video, i) => {
+        const videoUrl = video.video.startsWith("https") ? video.video : videoBasePath + video.video.split('/').pop();
+        const videoId = video.video_id;
+        const isWatched = watchedVideos.has(String(videoId));
+        const isDisabled = i !== watchingVideoIndex || isWatched;
+
+        //console.log("Rendering video", i, "ID:", videoId, "Watched:", isWatched);
+
         const videoDiv = document.createElement('div');
         videoDiv.className = 'col-6 col-md-6 col-lg-4';
-
-        let isWatched = watchedVideos.has(videoUrl);
-        let isDisabled = i !== watchingVideoIndex || isWatched; // Only the first unwatched video should be enabled
-
         videoDiv.innerHTML = `
             <div class="video-wrapper">
-                <video id="video${i}" width="100%" class="video-task" style="object-fit: fill; max-height: 228px;" ${isDisabled ? 'controls="false"' : 'controls' } poster="/images/slide-2.webp">
-                    <source src="${videoUrl}" type="video/mp4">
+                <video id="video${i}" width="100%" class="video-task" style="object-fit: fill; max-height: 228px;" ${isDisabled ? '' : 'controls'} poster="/images/slide-2.webp">
                     <source src="${videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -239,11 +240,10 @@ function showTasks() {
                 </p>
             </div>
         `;
-
         container.appendChild(videoDiv);
 
-        let videoElement = document.getElementById(`video${i}`);
-        let statusElement = document.getElementById(`status${i}`);
+        const videoElement = document.getElementById(`video${i}`);
+        const statusElement = document.getElementById(`status${i}`);
 
         if (isWatched) {
             markVideoUnplayable(videoElement, statusElement);
@@ -257,29 +257,30 @@ function showTasks() {
             this.lastTime = this.currentTime;
         });
 
-        // Ensure only one video plays at a time
+        // Allow only current video to play
         videoElement.addEventListener("play", function () {
             if (i !== watchingVideoIndex) {
                 this.pause();
             } else {
                 disableOtherVideos(i);
 
-                // Request fullscreen when video starts playing
                 if (this.requestFullscreen) {
                     this.requestFullscreen();
-                } else if (this.webkitRequestFullscreen) { // Safari
+                } else if (this.webkitRequestFullscreen) {
                     this.webkitRequestFullscreen();
-                } else if (this.msRequestFullscreen) { // IE11
+                } else if (this.msRequestFullscreen) {
                     this.msRequestFullscreen();
                 }
             }
         });
 
-        // Mark video as watched
-        videoElement.addEventListener("ended", function () {
-            markVideoCompleted(i, videoElement, statusElement, videoUrl);
+        //console.log("Video URL:", videoUrl);
 
-            // Exit fullscreen after completion
+        // On video complete
+        videoElement.addEventListener("ended", function () {
+            markVideoCompleted(i, videoElement, statusElement, videoId);
+
+            // Exit fullscreen
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             } else if (document.webkitFullscreenElement) {
@@ -300,11 +301,14 @@ function disableOtherVideos(activeIndex) {
         if (i !== activeIndex) {
             videoElement.controls = false;
             videoElement.style.pointerEvents = "none";
+        } else {
+            videoElement.controls = true;
+            videoElement.style.pointerEvents = "auto";
         }
     });
 }
 
-function markVideoCompleted(index, videoElement, statusElement, videoUrl) {
+function markVideoCompleted(index, videoElement, statusElement, videoId) {
     // Check if current time is before 5 PM (17:00)
     let now = new Date();
     let currentHour = now.getHours();
@@ -316,9 +320,8 @@ function markVideoCompleted(index, videoElement, statusElement, videoUrl) {
         return;
     }
 
-
-    watchedVideos.add(videoUrl);
-    videoElement.setAttribute("data-watched", "true");
+    watchedVideos.add(String(videoId));
+    videoElement.setAttribute("data-watched-id", videoId);
     markVideoUnplayable(videoElement, statusElement);
 
     videoCount++;
@@ -334,20 +337,22 @@ function markVideoCompleted(index, videoElement, statusElement, videoUrl) {
         }
     }
 
-    saveTaskProgress(videoUrl);
+    saveTaskProgress(videoId);
 }
 
 function markVideoUnplayable(videoElement, statusElement) {
     videoElement.controls = false;
     videoElement.style.pointerEvents = "none";
+    videoElement.style.opacity = "0.6";
     statusElement.innerHTML = `<strong style="color:#fff;">✔ Video Completed</strong>`;
+    statusElement.style.backgroundColor = "#28a745";
 }
 
-function saveTaskProgress(videoUrl) {
+function saveTaskProgress(videoId) {
     fetch("save_task.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `task_id=${encodeURIComponent(taskId)}&completed_tasks=1&total_earnings=${encodeURIComponent(earningPerVideo)}&video_url=${encodeURIComponent(videoUrl)}`,
+        body: `task_id=${encodeURIComponent(taskId)}&completed_tasks=1&total_earnings=${encodeURIComponent(earningPerVideo)}&video_id=${encodeURIComponent(videoId)}`,
     })
     .then(response => response.json())
     //.then(data => console.log("Server Response:", data))

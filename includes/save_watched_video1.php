@@ -9,10 +9,10 @@ if (!$user_mobile) {
     exit;
 }
 
-$task_id = intval($_POST['task_id'] ?? 0);
-$video_id = intval($_POST['video_id'] ?? 0);
+$task_id = $_POST['task_id'] ?? '';
+$video_url = $_POST['video_url'] ?? '';
 
-if (empty($task_id) || empty($video_id)) {
+if (empty($task_id) || empty($video_url)) {
     echo json_encode(["status" => "error", "message" => "Invalid input data"]);
     exit;
 }
@@ -22,7 +22,7 @@ $query = "INSERT INTO myapp_watchedvideo (task_id, video_url, watched_at, user_m
           ON DUPLICATE KEY UPDATE watched_at = NOW()";
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("sss", $task_id, $video_id, $user_mobile);
+$stmt->bind_param("sss", $task_id, $video_url, $user_mobile);
 
 if ($stmt->execute()) {
     echo json_encode(["status" => "success", "message" => "Video marked as watched"]);
